@@ -6,6 +6,7 @@ from django.contrib import messages
 from .models import EmployeeTransfer
 from .forms import EmployeeTransferForm
 
+
 # Create your views here.
 
 @login_required
