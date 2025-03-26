@@ -487,6 +487,7 @@ excel_columns = [
     ("email", trans("Email")),
     ("phone", trans("Phone")),
     ("experience", trans("Experience")),
+    # ("designation", trans("Designation")),
     ("gender", trans("Gender")),
     ("dob", trans("Date of Birth")),
     ("country", trans("Country")),

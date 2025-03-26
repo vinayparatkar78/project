@@ -52,6 +52,7 @@ SIDEBARS = [
     "attendance",
     "leave",
     "payroll",
+    "project",
     "pms",
     "offboarding",
     "asset",
