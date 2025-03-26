@@ -1,0 +1,40 @@
+{% load i18n %}
+<div class="oh-modal__dialog-header pb-0">
+    <span class="oh-modal__dialog-title" id="confirmModalLabel">
+        {% if designation and designation.id %} {% trans "Update" %} {% else %} {% trans "Create" %} {% endif %}
+        {{ verbose_name }}
+    </span>
+    
+    <button class="oh-modal__close" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+    </button>
+</div>
+
+<div class="oh-modal__dialog-body">
+    <form hx-post="{% if designation and designation.id %}{% url 'designation-update' designation.id %}{% else %}{% url 'designation-create' %}{% endif %}"
+        hx-target="{% if dynamic %} #dynamicCreateModalBody {% else %} #designationForm {% endif %}"
+        class="oh-profile-section">
+        
+        {% csrf_token %} 
+        {{ form.non_field_errors }}
+
+        <div class="oh-inner-sidebar-content__body">
+            <div class="oh-input-group mb-2">
+                <label class="mb-1"> {{ form.job_position_id.label }} </label>
+                {{ form.job_position_id.errors }} 
+                {{ form.job_position_id }}
+            </div>
+            <div class="oh-input-group mb-2">
+                <label class="mb-1">{% trans "Designation Name" %}</label>
+                {{ form.designation.errors }} 
+                <input type="text" name="designation" class="oh-input" placeholder="Enter Designation Name" value="{{ form.designation.value|default_if_none:'' }}">
+            </div>
+        </div>
+
+        <div class="oh-modal__dialog-footer p-0 mt-3">
+            <button type="submit" class="oh-btn oh-btn--secondary oh-btn--shadow">
+                {% trans "Save" %}
+            </button>
+        </div>
+    </form>
+</div>

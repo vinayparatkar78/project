@@ -192,7 +192,32 @@ class JobRole(HorillaModel):
 
     def __str__(self):
         return f"{self.job_role} - {self.job_position_id.job_position}"
+    
 
+class Designation(HorillaModel):
+    """Designation model"""
+
+    designation = models.CharField(
+        max_length=255, blank=False, null=False, verbose_name=_("Designation")
+    )
+
+    company_id = models.ManyToManyField(Company, blank=True, verbose_name=_("Company"))
+
+    objects = HorillaCompanyManager("company_id")
+
+    class Meta:
+        """
+        Meta class to add additional options
+        """
+        verbose_name = _("Designation")
+        verbose_name_plural = _("Designations")
+        constraints = [
+            models.UniqueConstraint(fields=["designation"], name="unique_designation")
+        ] 
+
+    def __str__(self):
+        return self.designation
+    
 
 class WorkType(HorillaModel):
     """

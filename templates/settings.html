@@ -197,6 +197,20 @@
 													>
 												{% endif %}
 											</div>
+
+											<div class="oh-input-group">
+												{% if perms.base.view_designation %}
+													<a
+														id="designation"
+														href="{% url 'designation-view' %}"
+														class="oh-inner-sidebar__link oh-dropdown__link"
+														>{% trans "Designation" %}</a
+													>
+												{% endif %}
+											</div>
+											
+
+
 											<div class="oh-input-group">
 												{% if perms.base.view_company %}
 													<a
