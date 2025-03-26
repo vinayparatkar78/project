@@ -54,6 +54,7 @@ from base.models import (
     HorillaMailTemplate,
     JobPosition,
     JobRole,
+    Designation,
     MultipleApprovalCondition,
     PenaltyAccounts,
     RotatingShift,
@@ -612,6 +613,84 @@ class JobRoleForm(ModelForm):
                 roles.append(role.pk)
             return JobRole.objects.filter(id__in=roles)
         super().save(commit, *args, **kwargs)
+
+# class DesignationForm(forms.ModelForm):
+#     """
+#     Designation model's form
+#     """
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if not self.instance.pk:
+#             attrs = self.fields["company_id"].widget.attrs
+#             attrs["class"] = "oh-select oh-select2 w-100"
+#             attrs["style"] = "height:45px;"
+
+#     class Meta:
+#         """
+#         Meta class for additional options
+#         """
+#         model = Designation
+#         fields = "__all__"
+#         exclude = ["is_active"]
+
+#     def save(self, commit=True, *args, **kwargs) -> Any:
+#         """
+#         Custom save method to handle multiple companies.
+#         """
+#         if not self.instance.pk:
+#             request = getattr(_thread_locals, "request", None)
+#             designation_name = self.data["designation"]
+#             companies = self.data.getlist("company_id")
+
+#             roles = []
+#             for company_id in companies:
+#                 designation = Designation()
+#                 designation.designation = designation_name
+#                 designation.save()
+#                 roles.append(designation.pk)
+            
+#             return Designation.objects.filter(id__in=roles)
+
+#         return super().save(commit, *args, **kwargs)
+    
+
+class DesignationForm(forms.ModelForm):
+    """
+    Designation model's form
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["designation"].widget.attrs.update({
+            "class": "oh-input",
+            "placeholder": "Enter Designation",
+        })
+
+    class Meta:
+        model = Designation
+        fields = ["designation", "company_id"] 
+
+    
+    def save(self, commit=True, *args, **kwargs):
+        """
+        Custom save method to handle multiple companies.
+        """
+        if not self.instance.pk:
+            request = getattr(_thread_locals, "request", None)
+            designation_name = self.data["designation"]  # Ensure correct field name
+            companies = self.data.getlist("company_id")
+
+            roles = []
+            for company_id in companies:
+                designation = designation()
+                designation.designation = designation_name  # Ensure field matches model
+                designation.save()
+                roles.append(designation.pk)
+
+            return designation.objects.filter(id__in=roles)
+
+        return super().save(commit, *args, **kwargs)
+    
 
 
 class WorkTypeForm(ModelForm):

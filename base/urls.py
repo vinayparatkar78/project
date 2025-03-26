@@ -23,6 +23,7 @@ from base.models import (
     HorillaMailTemplate,
     JobPosition,
     JobRole,
+    Designation,
     RotatingShift,
     RotatingShiftAssign,
     RotatingWorkType,
@@ -269,6 +270,25 @@ urlpatterns = [
             "HttpResponse": True,
         },
     ),
+
+    path("settings/designation-create/", views.designation_create, name="designation-create"),
+    path("settings/designation-view/", views.designation_view, name="designation-view"),
+    path(
+    "settings/designation-update/<int:id>/",
+    views.designation_update,
+    name="designation-update",
+    kwargs={"model": Designation},
+    ),
+    path(
+    "designation-delete/<int:obj_id>/",
+    views.object_delete,
+    name="designation-delete",
+    kwargs={
+        "model": Designation,
+        "HttpResponse": True,
+    },
+   ),
+
     path("settings/work-type-view/", views.work_type_view, name="work-type-view"),
     path("settings/work-type-create/", views.work_type_create, name="work-type-create"),
     path(
