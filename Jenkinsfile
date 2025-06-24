@@ -7,7 +7,7 @@ pipeline {
   }
 
   environment {
-    IMAGE_NAME = "horila-app"
+    IMAGE_NAME = "horilla_web"
     IMAGE_TAG  = "${env.BUILD_NUMBER}"
   }
 
