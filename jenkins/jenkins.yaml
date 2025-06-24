@@ -1,0 +1,171 @@
+# Jenkins Configuration as Code for Horilla HRMS
+jenkins:
+  systemMessage: "Jenkins configured for Horilla HRMS CI/CD Pipeline"
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 3
+  
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin123"
+          properties:
+            - "hudson.model.MyViewsProperty"
+            - "hudson.security.HudsonPrivateSecurityRealm$Details"
+            - "jenkins.security.ApiTokenProperty"
+
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:admin"
+        - "Overall/Read:authenticated"
+        - "Job/Build:authenticated"
+        - "Job/Cancel:authenticated"
+        - "Job/Read:authenticated"
+
+  remotingSecurity:
+    enabled: true
+
+  nodes:
+    - permanent:
+        name: "docker-agent"
+        remoteFS: "/home/jenkins"
+        launcher:
+          ssh:
+            host: "jenkins-agent"
+            port: 22
+            credentialsId: "jenkins-agent-key"
+
+security:
+  queueItemAuthenticator:
+    authenticators:
+      - global:
+          strategy: triggeringUsersAuthorizationStrategy
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "docker-registry-credentials"
+              username: "your-docker-username"
+              password: "your-docker-password"
+              description: "Docker Registry Credentials"
+          - basicSSHUserPrivateKey:
+              scope: GLOBAL
+              id: "staging-ssh-key"
+              username: "ubuntu"
+              description: "SSH Key for Staging Server"
+              privateKeySource:
+                directEntry:
+                  privateKey: |
+                    -----BEGIN OPENSSH PRIVATE KEY-----
+                    # Add your private key here
+                    -----END OPENSSH PRIVATE KEY-----
+          - basicSSHUserPrivateKey:
+              scope: GLOBAL
+              id: "production-ssh-key"
+              username: "ubuntu"
+              description: "SSH Key for Production Server"
+              privateKeySource:
+                directEntry:
+                  privateKey: |
+                    -----BEGIN OPENSSH PRIVATE KEY-----
+                    # Add your private key here
+                    -----END OPENSSH PRIVATE KEY-----
+          - string:
+              scope: GLOBAL
+              id: "slack-webhook-url"
+              secret: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+              description: "Slack Webhook URL"
+
+jobs:
+  - script: |
+      multibranchPipelineJob('horilla-hrms') {
+        displayName('Horilla HRMS Pipeline')
+        description('CI/CD Pipeline for Horilla HRMS')
+        
+        branchSources {
+          github {
+            id('horilla-github')
+            scanCredentialsId('github-credentials')
+            repoOwner('your-github-org')
+            repository('horilla')
+            buildOriginBranch(true)
+            buildOriginBranchWithPR(true)
+            buildOriginPRMerge(false)
+            buildOriginPRHead(true)
+            buildForkPRMerge(false)
+            buildForkPRHead(false)
+          }
+        }
+        
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+        
+        triggers {
+          periodicFolderTrigger {
+            interval('1d')
+          }
+        }
+        
+        orphanedItemStrategy {
+          discardOldItems {
+            daysToKeep(7)
+            numToKeep(10)
+          }
+        }
+      }
+
+tool:
+  git:
+    installations:
+      - name: "Default"
+        home: "git"
+  
+  nodejs:
+    installations:
+      - name: "NodeJS 18"
+        properties:
+          - installSource:
+              installers:
+                - nodeJSInstaller:
+                    id: "18.17.0"
+                    npmPackagesRefreshHours: 72
+
+  python:
+    installations:
+      - name: "Python 3"
+        properties:
+          - installSource:
+              installers:
+                - command:
+                    command: "python3"
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+    adminAddress: "admin@horilla.com"
+  
+  slackNotifier:
+    baseUrl: "https://your-workspace.slack.com/services/hooks/jenkins-ci/"
+    teamDomain: "your-workspace"
+    token: "your-slack-token"
+    room: "#ci-cd"
+  
+  globalLibraries:
+    libraries:
+      - name: "horilla-shared-library"
+        defaultVersion: "main"
+        retriever:
+          modernSCM:
+            scm:
+              github:
+                repoOwner: "your-github-org"
+                repository: "horilla-jenkins-library"

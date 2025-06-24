@@ -1,0 +1,62 @@
+# Jenkins Plugins for Horilla CI/CD Pipeline
+# Core pipeline plugins
+workflow-aggregator:latest
+pipeline-stage-view:latest
+pipeline-graph-analysis:latest
+blueocean:latest
+
+# Docker support
+docker-workflow:latest
+docker-plugin:latest
+
+# Git and GitHub integration
+git:latest
+github:latest
+github-branch-source:latest
+pipeline-github-lib:latest
+
+# SSH and deployment
+ssh-agent:latest
+ssh-slaves:latest
+
+# Notifications
+slack:latest
+email-ext:latest
+mailer:latest
+
+# Testing and reporting
+junit:latest
+htmlpublisher:latest
+cobertura:latest
+
+# Build tools
+nodejs:latest
+python:latest
+ant:latest
+gradle:latest
+
+# Security and credentials
+credentials-binding:latest
+matrix-auth:latest
+role-strategy:latest
+
+# Utilities
+build-timeout:latest
+timestamper:latest
+ws-cleanup:latest
+environment-injector:latest
+parameterized-trigger:latest
+conditional-buildstep:latest
+copyartifact:latest
+archive-artifacts:latest
+
+# Monitoring and views
+dashboard-view:latest
+view-job-filters:latest
+monitoring:latest
+disk-usage:latest
+build-monitor-plugin:latest
+prometheus:latest
+
+# Configuration as Code
+configuration-as-code:latest

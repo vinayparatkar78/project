@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  web:
+    image: ${DOCKER_REGISTRY:-your-registry.com}/horilla-hrms:${IMAGE_TAG:-latest}
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=horilla_staging
+      - DB_USER=horilla_staging
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - ALLOWED_HOSTS=staging.horilla.com,localhost
+      - SECRET_KEY=${SECRET_KEY}
+      - APP_VERSION=${IMAGE_TAG:-latest}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/static
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=horilla_staging
+      - POSTGRES_USER=horilla_staging
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U horilla_staging"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.staging.conf:/etc/nginx/nginx.conf
+      - static_data:/var/www/static
+      - media_data:/var/www/media
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_staging_data:
+  media_data:
+  static_data:

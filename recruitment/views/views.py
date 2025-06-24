@@ -22,7 +22,10 @@ from datetime import date, datetime
 from itertools import chain
 from urllib.parse import parse_qs
 
-import fitz  # type: ignore
+try:
+    import fitz  # type: ignore
+except ImportError:
+    fitz = None
 from django import template
 from django.conf import settings
 from django.contrib import messages
@@ -2799,6 +2802,9 @@ def extract_text_with_font_info(pdf):
     Args:
         pdf (): pdf file to extract text from
     """
+    if fitz is None:
+        return []
+    
     pdf_bytes = pdf.read()
     pdf_doc = io.BytesIO(pdf_bytes)
     doc = fitz.open("pdf", pdf_doc)
@@ -3104,6 +3110,9 @@ def extract_words_from_pdf(pdf_file):
         pdf_file: pdf file
 
     """
+    if fitz is None:
+        return []
+        
     pdf_document = fitz.open(pdf_file.path)
 
     words = []

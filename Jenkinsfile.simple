@@ -1,0 +1,12 @@
+@Library('horilla-shared-library') _
+
+// Simple Jenkinsfile using shared library
+horillaDeployment([
+    dockerRegistry: 'your-registry.com',
+    dockerImage: 'horilla-hrms',
+    dockerCredentials: 'docker-registry-credentials',
+    stagingServer: 'staging.horilla.com',
+    productionServer: 'production.horilla.com',
+    stagingCredentials: 'staging-ssh-key',
+    productionCredentials: 'production-ssh-key'
+])

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-horilla
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins/plugins.txt:/usr/share/jenkins/ref/plugins.txt
+      - ./jenkins/jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/jenkins.yaml
+    user: root
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  jenkins-agent:
+    image: jenkins/ssh-agent:latest
+    container_name: jenkins-agent-horilla
+    restart: unless-stopped
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... # Add your public key here
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - jenkins
+
+  # PostgreSQL for testing
+  postgres-test:
+    image: postgres:13
+    container_name: postgres-test-horilla
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=horilla_test
+      - POSTGRES_USER=horilla_test
+      - POSTGRES_PASSWORD=test_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+
+  # Redis for testing
+  redis-test:
+    image: redis:7-alpine
+    container_name: redis-test-horilla
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+
+volumes:
+  jenkins_home:
+  postgres_test_data:
